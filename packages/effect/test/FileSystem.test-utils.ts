@@ -1093,7 +1093,7 @@ export const testGlob = <E>(layer: Layer.Layer<Fs.FileSystem, E>) => {
       expected: [".hidden/secret.ts", "a/x.ts", "b/y.ts", "src/index.ts", "src/sub/deep.ts"]
     },
     { pattern: "*", exclude: ["**/src/", "**/README.md/"], expected: ["README.md", "a", "b", "node_modules"] },
-    // `filter` expectations: moby/patternmatcher@5a6d842 and `git check-ignore --no-index`
+    // `filter` expectations: BuildKit's walk (tonistiigi/fsutil@ca65610) and `git check-ignore --no-index`
     {
       pattern: "**/*.ts",
       dot: true,
@@ -1110,7 +1110,7 @@ export const testGlob = <E>(layer: Layer.Layer<Fs.FileSystem, E>) => {
       pattern: "**/*.ts",
       dot: true,
       filter: ["dockerignore", "src\n!src/index.ts\nsrc\n"],
-      expected: [".hidden/secret.ts", "a/x.ts", "b/y.ts", "node_modules/pkg/index.ts"]
+      expected: [".hidden/secret.ts", "a/x.ts", "b/y.ts", "node_modules/pkg/index.ts", "src/index.ts"]
     },
     {
       pattern: "**/*.ts",
@@ -1132,7 +1132,8 @@ export const testGlob = <E>(layer: Layer.Layer<Fs.FileSystem, E>) => {
       filter: ["gitignore", "!src\n"],
       expected: ["README.md", "a", "b", "node_modules"]
     },
-    // the exception is not a plain prefix of `node_modules/pkg`, so it must be read
+    // the exception is not a plain prefix of `node_modules/pkg`, so it must be
+    // read. fsutil strips both trailing globs here and drops the file.
     {
       pattern: "node_modules/**",
       dot: true,
